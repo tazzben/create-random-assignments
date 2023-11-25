@@ -1,0 +1,246 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha384-1H217gwSVyLSIfaLxHbE7dRb3v4mYCKbpQvzx0cegeju1MVsGrX5xXxAvs/HgeFs" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" integrity="sha384-4D3G3GikQs6hLlLZGdz5wLFzuqE9v4yVGAcOH86y23JqBDPzj9viv0EqyfIa6YUL" crossorigin="anonymous"></script>
+<script>
+
+var showprogress = false;
+
+
+var progressfunction = function(){
+  if(showprogress === true){
+     google.script.run.withSuccessHandler(updateProgress).getProgress();
+  }
+};
+
+function updateProgress(rdata){
+   if(showprogress === true && $("#progress")){
+     $("#progress").text(rdata);
+     setTimeout(progressfunction, 15000);
+   }
+}
+
+function isInt(n) {
+	return parseFloat(n) == parseInt(n, 10) && !isNaN(n);
+}
+
+function isFloat(n){
+    return n === Number(n) && n % 1 !== 0;
+}
+
+
+$(document).ready(function(){
+
+if($("div.error")[0]){
+  createError($("div.error"));
+}
+
+if($("div.notice")[0]){
+    createHighlight($("div.notice"));
+}
+});
+
+
+function createHighlight(obj){
+    obj.addClass('ui-state-highlight');
+    obj.html('<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right:.3em;"></span>'+obj.html()+'<span id=\'progress\'></span></p>');
+}
+
+function createError(obj){
+    obj.addClass('ui-state-error');
+    obj.html('<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right:.3em;"></span>'+obj.html()+'</p>');
+}
+
+
+$(document).ready(function(){
+       $('#form').bind('submit', onFormSubmit);
+       $('#questionsBut').bind('click', getQPicker);
+       $('#studentsBut').bind('click', getSPicker);
+       
+    $("input[name=delivery]:radio").change(function () {
+        if ($("#email").prop("checked")===true || $("#ind").prop("checked")===true) {
+            $("#options").show();
+            if($("#email").prop("checked")===true){
+                $("#message").show();
+            }else{
+                $("#message").hide();
+            }
+        }else{
+            $("#options").hide();
+            $("#message").hide();
+        }
+    });
+    
+    
+    $('#advset').click(function() {
+    
+        if($('#adv').is(':visible')) {
+           $('#advset').text('Show advanced settings...');
+           $('#adv').hide();
+        }else{
+           $('#advset').text('Hide advanced settings...');
+           $('#adv').show();
+        }
+    });
+    
+    });
+    
+    
+    
+    
+    // IMPORTANT: Replace the value for DEVELOPER_KEY with the API key obtained
+    // from the Google Developers Console.
+    var DEVELOPER_KEY = 'AIzaSyBWYBTRbLEvassf7Zgy01YD_NjlDjiJq1I';
+    var DIALOG_DIMENSIONS = {width: 600, height: 425};
+    var pickerApiLoaded = false;
+
+    /**
+     * Loads the Google Picker API.
+     */
+    function onApiLoad() {
+      gapi.load('picker', {'callback': function() {
+        pickerApiLoaded = true;
+      }});
+     }    
+    
+    function getQPicker(){
+        google.script.run.withSuccessHandler(createQPicker).withFailureHandler(showError).getOAuthToken();
+    }
+    
+    function createQPicker(token){
+        if (pickerApiLoaded && token) {
+        var picker = new google.picker.PickerBuilder()
+            .addView(google.picker.ViewId.SPREADSHEETS)
+            .enableFeature(google.picker.Feature.NAV_HIDDEN)
+            .hideTitleBar()
+            .setOAuthToken(token)
+            .setDeveloperKey(DEVELOPER_KEY)
+            .setCallback(pickerQCallback)
+            .setOrigin(google.script.host.origin)
+            .setSize(DIALOG_DIMENSIONS.width - 2,
+                DIALOG_DIMENSIONS.height - 2)
+            .build();
+        picker.setVisible(true);
+      }
+    }
+    
+    function pickerQCallback (data){
+      var action = data[google.picker.Response.ACTION];
+      if (action == google.picker.Action.PICKED) {
+        var doc = data[google.picker.Response.DOCUMENTS][0];
+        var id = doc[google.picker.Document.ID];
+        var title = doc[google.picker.Document.NAME];
+        $("#questions").val(id);
+        $("#questionsInfo").text(title);
+      }
+    }
+    
+    function getSPicker(){
+        google.script.run.withSuccessHandler(createSPicker).withFailureHandler(showError).getOAuthToken();
+    }
+    
+    function createSPicker(token){
+        if (pickerApiLoaded && token) {
+        var picker = new google.picker.PickerBuilder()
+            .addView(google.picker.ViewId.SPREADSHEETS)
+            .enableFeature(google.picker.Feature.NAV_HIDDEN)
+            .hideTitleBar()
+            .setOAuthToken(token)
+            .setDeveloperKey(DEVELOPER_KEY)
+            .setCallback(pickerSCallback)
+            .setOrigin(google.script.host.origin)
+            .setSize(DIALOG_DIMENSIONS.width - 2,
+                DIALOG_DIMENSIONS.height - 2)
+            .build();
+        picker.setVisible(true);
+      }
+    }
+    
+    function pickerSCallback (data){
+      var action = data[google.picker.Response.ACTION];
+      if (action == google.picker.Action.PICKED) {
+        var doc = data[google.picker.Response.DOCUMENTS][0];
+        var id = doc[google.picker.Document.ID];
+        var title = doc[google.picker.Document.NAME];
+        $("#students").val(id);
+        $("#studentsInfo").text(title);
+      }
+    }
+
+
+    function showError(message) {
+      $('#notice').hide();
+      $("html, body").animate({ scrollTop: 0 }, "fast");
+      var obj = $('#error');
+      obj.text(message);
+      obj.addClass('ui-state-error');
+      obj.html('<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right:.3em;"></span>'+obj.html()+'</p>');
+      obj.show(0).delay(30000).hide(0);
+    }
+    
+    function showNotice(message) {
+      $('#error').hide();
+      $("html, body").animate({ scrollTop: 0 }, "fast");
+      var obj = $('#notice');
+      obj.text(message);
+      obj.addClass('ui-state-highlight');
+      obj.html('<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right:.3em;"></span>'+obj.html()+'<span id=\'progress\'></span></p>');
+      obj.show();
+    }
+    
+    function onFormSubmit(event) {
+      var data = $('#form').serializeArray().reduce(function(obj, item) {
+      obj[item.name] = item.value;
+      return obj;
+      }, {});
+      if(data['assignment'].length<1){
+        showError("You must specify an assignment name.");
+        return false;
+      }
+      if(data['questions'].length<1){
+        showError("You must specify a question bank.");
+        return false;
+      }
+      if(data['students'].length<1){
+        showError("You must specify the students spreadsheet.");
+        return false;
+      }
+      if(data['delivery']=='email' && data['subjectline'].length<1){
+        showError("You must specify the E-Mail subject line.");
+        return false;
+      }
+      if(isInt(data['numq'])===false || Number(data['numq'])<1){
+        showError("You must specify the number of questions per section");
+        return false;
+      }
+      $("html, body").animate({ scrollTop: 0 }, "fast");
+      $('#submitButton').hide();
+      showNotice("Creating file(s), please be patient...");
+      showprogress = true;
+      setTimeout(progressfunction, 15000);
+      google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).CheckData(data);
+      return false;
+    }
+    
+    function onSuccess(sucData){
+       showprogress = false;
+       $('#submitButton').show();
+       $('#notice').hide();
+       if (sucData === true){
+           $("html, body").animate({ scrollTop: 0 }, "fast");
+           showNotice("Success! You have created the random assignments!");
+           $('#notice').delay(30000).hide(0);
+       }else{
+           showError(sucData);
+       }
+       return false;
+    }
+    
+    function onFailure(error){
+      showprogress = false;
+      $('#notice').hide();
+      $('#submitButton').show();
+      var errormessage = error.message;
+      showError(errormessage);
+      return false;
+    }
+    
+</script>

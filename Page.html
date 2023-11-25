@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+  <link href='https://fonts.googleapis.com/css?family=Alegreya+Sans+SC' rel='stylesheet' type='text/css'>
+  <?!= HtmlService.createHtmlOutputFromFile('Stylesheet').getContent(); ?>
+</head>
+<body>
+  
+  <div id='container'>
+  <div id='logo'>Create Random Assignments 2.0</div>
+  <div class="error" style='display:none;' id='error'></div>
+  <div class="notice" style='display:none;' id='notice'></div>
+  <form id='form' name='form'>
+  <div id='coldiv'>
+  
+    <div class='col'>
+        
+    <div class="assignment">
+        <span class='title'>Assignment</span>
+        <input type='text' name='assignment' id='assignment' placeholder='Assignment Name' />
+        <p><label for='numq'>Questions per section/chapter: </label><input type='number' id='numq' name='numq' step='1' /></p>
+        <p><textarea name='headerbody' id='headerbody' placeholder='Text at the top of the assignment (optional)'></textarea></p>
+    </div>
+    
+    <div class='files'>
+       <span class='title'>Files</span>
+       <button name='questionsBut' id='questionsBut' type="button">Select Questions Spreadsheet</button><div id='questionsInfo'></div><input type='hidden' id='questions' name='questions' value='' />
+       <button name='studentsBut' id='studentsBut' type="button">Select Students Spreadsheet</button><div id='studentsInfo'></div><input type='hidden' id='students' name='students' value='' />
+    </div>
+    
+    <div class='delivery'>
+      <span class='title'>Delivery</span>
+      <input type='radio' name='delivery' id='email' value='email' checked /><label for='email'>Create and E-Mail individual Google Drive documents</label>
+      <br /><input type='radio' name='delivery' id='ind' value='ind' /><label for='ind'>Create individual Google Drive documents</label>
+      <br /><input type='radio' name='delivery' id='single' value='single' /><label for='single'>Create a single long Google Drive document</label>
+    </div>
+    
+    </div>
+    
+    <div class='col'>
+    
+    <div class='message' id="message" name="message">
+       <span class='title'>E-Mail</span>
+       <input type='text' name='subjectline' id='subjectline' placeholder='E-Mail Subject Line' />
+       <p><input type='checkbox' id='attachment' name='attachment' /><label for='attachment'>Attach PDF to E-Mail</label></p>
+    </div>
+    
+    <div class='options' id="options" name="options">
+       <span class='title'>Options</span>
+       <p><input type='checkbox' class='options' id='link' name='link' /><label for='link'>Anyone with a link can access a document</label></p>
+       <p><input type='checkbox' class='options' id='readonly' name='readonly' /><label for='readonly'>Create read only documents</label></p>
+       <p><input type='checkbox' class='options' id='answerkeys' name='answerkeys' /><label for='answerkeys'>Create individual answer key files</label></p>
+    </div>
+
+    <div class='advanced'>
+       <div id='adv' name='adv'>
+          <p>Limit the students spreadsheet range from:</p>
+          <p><input type='number' name='lStart' id='lStart' placeholder='All' /> to <input type='number' name='lEnd' id='lEnd' placeholder='All' /></p>
+       </div>
+       <a href='#' id='advset'>Show advanced settings...</a>
+    </div>
+    </div>
+  </div>
+  <a href="https://bensresearch.com/CRA" target="_blank">Help and Documentation &gt;</a>
+  <div style='float:right;' id='submitButton'>
+       <input type='submit' value='Create Assignments' />
+  </div>
+  </form>
+  </div>
+  <?!= HtmlService.createHtmlOutputFromFile('JavaScript').getContent(); ?>
+  <script src="https://apis.google.com/js/api.js" integrity="sha384-u/0IKkm8IWZAna0BA8zYdrPLfAoIwYkuZ9W13tMx4D93F4v1OB1Lde2Ilulj/yzv" crossorigin="anonymous"></script>
+  <script>gapi.load("picker", {callback:function(){ pickerApiLoaded =!0; }});</script>
+</body>
+</html>
